@@ -1,12 +1,15 @@
 {
   "name": "kaohut-server",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "start": "node ./dist/index.js",
+    "build": "tsc && tsc-alias"
   },
   "dependencies": {
     "hono": "^4.6.10"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "tsc-alias": "^1.8.10"
   }
 }
