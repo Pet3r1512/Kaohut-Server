@@ -1,7 +1,21 @@
 {
   "compilerOptions": {
-    "strict": true,
+    "target": "ESNext",
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
+    "jsxImportSource": "hono/jsx",
+    "baseUrl": "./",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node"],
+    "strict": true,
+    "outDir": "./dist",
+    "skipLibCheck": true
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
   }
 }
