@@ -2,6 +2,7 @@
   "name": "kaohut-server",
   "type": "module",
   "main": "dist/index.js",
+  "packageManager": "pnpm@9.12.2+sha256.2ef6e547b0b07d841d605240dce4d635677831148cd30f6d564b8f4f928f73d2",
   "scripts": {
     "build": "tsup-node",
     "dev": "tsup-node --watch",
