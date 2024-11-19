@@ -1,11 +1,9 @@
-To install dependencies:
-```sh
-bun install
-```
+# Kaohot Server
 
-To run:
-```sh
-bun run dev
-```
+## Built with
 
-open http://localhost:3000
+- Express.js
+- Typescruot
+- Tsup
+- Prisma
+- XataDB
