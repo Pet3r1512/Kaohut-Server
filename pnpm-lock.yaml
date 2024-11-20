@@ -11,9 +11,6 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.2
         version: 1.13.2(hono@4.6.6)
-      '@hono/zod-openapi':
-        specifier: ^0.16.4
-        version: 0.16.4(hono@4.6.6)(zod@3.23.8)
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -2827,11 +2824,13 @@ snapshots:
       '@hono/zod-validator': 0.3.0(hono@4.6.6)(zod@3.23.8)
       hono: 4.6.6
       zod: 3.23.8
+    optional: true
 
   '@hono/zod-validator@0.3.0(hono@4.6.6)(zod@3.23.8)':
     dependencies:
       hono: 4.6.6
       zod: 3.23.8
+    optional: true
 
   '@humanfs/core@0.19.0': {}
 
