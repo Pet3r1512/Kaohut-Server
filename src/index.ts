@@ -9,15 +9,7 @@ const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
 
 app.get("/", async (c) => {
-  const newUser = await prisma.user.create({
-    data: {
-      email: "email@gmail.com",
-      password: "15122002",
-      fullName: "Thanh Phong",
-      role: "student",
-    },
-  });
-  return c.json(newUser);
+  return c.text("Hello Hono");
 });
 
 serve({
