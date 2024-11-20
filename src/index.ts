@@ -1,15 +1,13 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import { serve } from "@hono/node-server";
 
-dotenv.config();
+import app from "./app";
+import env from "./env";
 
-const app: Express = express();
-const port = process.env.PORT || 8080;
+const port = env.PORT;
+// eslint-disable-next-line no-console
+console.log(`Server is running on port http://localhost:${port}`);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
-});
-
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+serve({
+  fetch: app.fetch,
+  port,
 });
