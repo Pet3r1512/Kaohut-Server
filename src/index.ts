@@ -1,15 +1,26 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import { serve } from "@hono/node-server";
 
-dotenv.config();
+import app from "./app";
+import prisma from "./db/Prisma";
+import env from "./env";
 
-const app: Express = express();
-const port = process.env.PORT || 8080;
+const port = env.PORT;
+// eslint-disable-next-line no-console
+console.log(`Server is running on port http://localhost:${port}`);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+app.get("/", async (c) => {
+  const newUser = await prisma.user.create({
+    data: {
+      email: "email@gmail.com",
+      password: "15122002",
+      fullName: "Thanh Phong",
+      role: "student",
+    },
+  });
+  return c.json(newUser);
 });
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+serve({
+  fetch: app.fetch,
+  port,
 });
