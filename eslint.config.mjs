@@ -20,7 +20,6 @@ export default antfu({
       internalPattern: ["@/**"],
     }],
     "unicorn/filename-case": ["error", {
-      case: "kebabCase",
       ignore: ["README.md"],
     }],
   },
