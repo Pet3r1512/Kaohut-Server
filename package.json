@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
     "test": "cross-env NODE_ENV=test vitest",
-    "build": "tsc && tsc-alias"
+    "build": "pnpm install --prod=false && tsc && tsc-alias",
+    "heroku-postbuild": "pnpm run build"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.2",
