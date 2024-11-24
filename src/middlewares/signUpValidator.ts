@@ -3,8 +3,8 @@ import { createMiddleware } from 'hono/factory'
 export type SignUpDataType = {
     email: string,
     password: string,
-    fullName: string,
-    role: string
+    name: string,
+   role: string
 }
 
 export const signUpValidator = createMiddleware<{
@@ -13,9 +13,9 @@ export const signUpValidator = createMiddleware<{
     }
 }>(async (c, next) => {
     const body = await c.req.json();
-    const { email, password, fullName, role } = body;
+    const { email, password, name, role } = body;
   
-    if (!body || typeof email !== "string" || typeof password !== "string" || typeof fullName !== "string") {
+    if (!body || typeof email !== "string" || typeof password !== "string" || typeof name !== "string") {
       return c.json({ message: "Invalid signup credentials" }, 400);
     }
   
@@ -28,11 +28,11 @@ export const signUpValidator = createMiddleware<{
     if (password.length < 8) {
       return c.json({ message: "Password must be at least 8 characters" }, 400);
     }
-  
+
     if (role !== "teacher" && role !== "student") {
       return c.json({ message: "Invalid role" }, 400);
     }
-  
+
     c.set('signUpData', body)
   
     await next();
