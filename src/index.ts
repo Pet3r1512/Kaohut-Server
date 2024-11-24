@@ -21,4 +21,5 @@ app.get("/", async (c) => {
 serve({
   fetch: app.fetch,
   port,
+  hostname: "127.0.0.1",
 });
