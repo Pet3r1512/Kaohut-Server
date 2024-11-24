@@ -7,11 +7,6 @@ const authRouter = new Hono()
 authRouter.post("/signup", signUpValidator, async (c) => {
     const {email, password, name, role } = c.var.signUpData
 
-    const isExisted = await getUser(email)
-    if (isExisted) {
-        return c.json({
-            message: "Email is existed"
-        }, 400)
     }
 
     prisma.$connect()
