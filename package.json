@@ -11,13 +11,15 @@
     "lint:fix": "pnpm run lint --fix",
     "test": "cross-env NODE_ENV=test vitest",
     "build": "pnpm install --prod=false && tsc && tsc-alias",
-    "heroku-postbuild": "pnpm run build"
+    "heroku-postbuild": "pnpm run build",
+    "db:push": "pnpm prisma db push"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.2",
     "@libsql/client": "^0.14.0",
     "@prisma/client": "^5.22.0",
     "@scalar/hono-api-reference": "^0.5.156",
+    "better-auth": "^1.0.0",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "hono": "^4.6.6",
