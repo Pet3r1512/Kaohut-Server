@@ -5,7 +5,7 @@ import { Hono } from "hono";
 
 const authRouter = new Hono()
 authRouter.post("/signup", signUpValidator, async (c) => {
-    const {email, password, fullName } = c.var.signUpData
+    const {email, password, name, role } = c.var.signUpData
 
     const isExisted = await getUser(email)
     if (isExisted) {
