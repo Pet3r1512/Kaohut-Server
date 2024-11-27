@@ -1,0 +1,9 @@
+# deps
+node_modules/
+
+# outputs
+dist/
+
+# env
+.env
+.vercel
