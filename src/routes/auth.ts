@@ -21,4 +21,19 @@ authRouter.post("/signup", signUpValidator, async (c) => {
     )
 })
 
+authRouter.post("/signin", signInValidator, async (c) => {
+    const { email, password } = c.var.signInData
+    const response = await auth.api.signInEmail({
+        body: { email, password }
+    })
+
+    if (!response) {
+        return c.json({ message: "Error" }, 400)
+    }
+
+    return c.json({
+        message: "Sign In Done"
+    }, 201)
+})
+
 export default authRouter;
