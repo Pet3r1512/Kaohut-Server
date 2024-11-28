@@ -1,7 +1,7 @@
-import { signInValidator } from "@/middlewares/auth/signin";
-import { signUpValidator } from "@/middlewares/auth/signup";
-import { auth } from "@/utils/auth";
 import { Hono } from "hono";
+import { signUpValidator } from "../middlewares/auth/signup";
+import { auth } from "../utils/auth";
+import { signInValidator } from "../middlewares/auth/signin";
 
 const authRouter = new Hono()
 authRouter.post("/signup", signUpValidator, async (c) => {
