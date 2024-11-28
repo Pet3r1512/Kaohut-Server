@@ -7,17 +7,17 @@ compatibility_flags = [ "nodejs_compat" ]
 # MY_VAR = "my-variable"
 
 # [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# binding = "MY_KV"
+# id = "dfb567c89a194623929b6d3aa7cd7099"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
-
 # [ai]
 # binding = "AI"
+
+# [xata]
+binding = "XATA"
+database_url = {env = "DATABASE_URL"}
+prisma_schema = "./prisma/schema.prisma"
