@@ -6,7 +6,8 @@
     "build": "vite build",
     "preview": "wrangler pages dev",
     "deploy": "$npm_execpath run build && wrangler pages deploy",
-    "db:push": "pnpm prisma db push"
+    "db:push": "pnpm prisma db push",
+    "env": "dotenv -e .dev.vars"
   },
   "dependencies": {
     "@hono/vite-cloudflare-pages": "^0.4.2",
@@ -23,6 +24,7 @@
     "@hono/vite-build": "^1.0.0",
     "@hono/vite-dev-server": "^0.16.0",
     "@types/node": "^22.10.0",
+    "dotenv-cli": "^7.4.4",
     "eslint": "^9.15.0",
     "eslint-plugin-format": "^0.1.2",
     "typescript": "^5.7.2",
