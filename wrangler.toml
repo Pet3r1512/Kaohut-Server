@@ -1,4 +1,4 @@
-name = "kaohut-server-cf"
+name = "kaohut-server"
 compatibility_date = "2024-11-28"
 pages_build_output_dir = "./dist"
 compatibility_flags = [ "nodejs_compat" ]
@@ -16,8 +16,3 @@ compatibility_flags = [ "nodejs_compat" ]
 
 # [ai]
 # binding = "AI"
-
-# [xata]
-binding = "XATA"
-database_url = {env = "DATABASE_URL"}
-prisma_schema = "./prisma/schema.prisma"
