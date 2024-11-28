@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@hono/vite-cloudflare-pages": "^0.4.2",
+    "@prisma/adapter-pg": "^5.22.0",
     "@prisma/client": "^5.22.0",
     "better-auth": "^1.0.6",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^12.0.1",
     "hono": "^4.6.12",
+    "pg": "^8.13.1",
     "prisma": "^5.22.0",
     "zod": "^3.23.8"
   },
@@ -24,6 +26,7 @@
     "@hono/vite-build": "^1.0.0",
     "@hono/vite-dev-server": "^0.16.0",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
     "dotenv-cli": "^7.4.4",
     "eslint": "^9.15.0",
     "eslint-plugin-format": "^0.1.2",
