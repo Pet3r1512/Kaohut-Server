@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
           output: {
             entryFileNames: 'static/client.js',
           },
+          external: ['.prisma/client/index-browser'],
         },
       },
     }
