@@ -22,44 +22,25 @@ export const authRouter = router({
                 return { status: 201, message: "Sign Up Done" }
             }
         ),
-    test: publicProcedure.query(() => {
-        return { messgae: "Test" }
-    })
+    signIn: publicProcedure
+        .input(z.object({
+            email: z.string().email('Ivalid Email'),
+            password: z.string()
+        }))
+        .mutation(
+            async ({ input }) => {
+                const { email, password } = input
+                const response = await auth.api.signInEmail({
+                    body: { email, password }
+                })
+
+                if (!response) {
+                    return { message: "Error", status: 400 }
+                }
+                return { message: "Sign In Done", status: 200 }
+            }
+        )
 
 })
-
-// const authRouter = new Hono()
-// authRouter.post("/signup", signUpValidator, async (c) => {
-//     const { email, password, name, role } = c.var.signUpData
-
-//     const response = await auth.api.signUpEmail({
-//         body: { email, password, name, role },
-//     });
-
-//     if (!response) {
-//         return c.json(
-//             { message: "Error" }, 400
-//         )
-//     }
-
-//     return c.json(
-//         { message: "Sign Up done" }, 201
-//     )
-// })
-
-// authRouter.post("/signin", signInValidator, async (c) => {
-//     const { email, password } = c.var.signInData
-//     const response = await auth.api.signInEmail({
-//         body: { email, password }
-//     })
-
-//     if (!response) {
-//         return c.json({ message: "Error" }, 400)
-//     }
-
-//     return c.json({
-//         message: "Sign In Done"
-//     }, 201)
-// })
 
 export default authRouter;
