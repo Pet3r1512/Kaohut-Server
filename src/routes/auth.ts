@@ -1,17 +1,15 @@
 import { auth } from "@/utils/auth";
 import { publicProcedure, router } from "./tRPC";
-import { z } from "zod"
-import { signUpValidator } from "@/middlewares/auth/signup";
+import { z } from "zod";
 
 export const authRouter = router({
     signUp: publicProcedure
         .input(z.object({
-            email: z.string(),
-            password: z.string(),
+            email: z.string().email('Invalid email'),
+            password: z.string().min(8, 'Password must be at least 8 characters'),
             name: z.string(),
-            role: z.string()
+            role: z.string(),
         }))
-        .use(signUpValidator)
         .mutation(
             async ({ input }) => {
                 const { email, password, name, role } = input
