@@ -1,39 +1,31 @@
-import { createMiddleware } from 'hono/factory'
+import { middleware } from '@/routes/tRPC';
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
-export type SignUpDataType = {
-  email: string,
-  password: string,
-  name: string,
-  role: string
-}
+// Define the input schema using zod
+const signUpSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: z.string(),
+  role: z.string()
+});
 
-export const signUpValidator = createMiddleware<{
-  Variables: {
-    signUpData: SignUpDataType
+// Define the middleware
+export const signUpValidator = middleware(async ({ ctx, next, input }) => {
+  try {
+    // Validate the input using the schema
+    const signUpData = signUpSchema.parse(input);
+
+    return next({
+      ctx: {
+        ...ctx,
+        signUpData,
+      },
+    });
+  } catch (error) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: error instanceof z.ZodError ? error.errors[0].message : 'Invalid input',
+    });
   }
-}>(async (c, next) => {
-  const body = await c.req.json();
-  const { email, password, name, role } = body;
-
-  if (!body || typeof email !== "string" || typeof password !== "string" || typeof name !== "string") {
-    return c.json({ message: "Invalid signup credentials" }, 400);
-  }
-
-  const emailRegex = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
-
-  if (!emailRegex.test(email)) {
-    return c.json({ messgae: "Invalid email" }, 400);
-  }
-
-  if (password.length < 8) {
-    return c.json({ message: "Password must be at least 8 characters" }, 400);
-  }
-
-  if (role !== "teacher" && role !== "student") {
-    return c.json({ message: "Invalid role" }, 400);
-  }
-
-  c.set('signUpData', body)
-
-  await next();
-})
+});
