@@ -15,8 +15,7 @@ app.use("/*", cors());
 app.use(
   "/*",
   cors({
-    // origin: "https://kaohut.pages.dev/",
-    origin: "http://localhost:5173/",
+    origin: ORIGIN,
     allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
     allowMethods: ["POST", "GET", "OPTIONS"],
     exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
