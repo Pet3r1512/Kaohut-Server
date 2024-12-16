@@ -14,7 +14,7 @@ const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : env.N
 app.use(
   "/*",
   cors({
-    origin: ORIGIN,
+    origin: "*",
     allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
     allowMethods: ["POST", "GET", "OPTIONS"],
     exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
