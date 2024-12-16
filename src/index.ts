@@ -13,12 +13,7 @@ const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : env.N
 
 app.use(
   "/*",
-  cors({
-    origin: "*",
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    maxAge: 600,
-    credentials: true,
-  }),
+  cors(),
 );
 
 app.use(
