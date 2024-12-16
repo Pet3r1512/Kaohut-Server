@@ -33,7 +33,7 @@ app.use(
 
 // Should remove this later on
 app.get("/", async (c) => {
-  return c.text(env.NODE_ENV);
+  return c.text(ORIGIN);
 });
 
 serve({
