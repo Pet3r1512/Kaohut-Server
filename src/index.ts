@@ -11,7 +11,6 @@ console.log(`Server is running on port http://localhost:${port}`);
 
 const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : env.NODE_ENV === "production" ? "https://kaohut.pages.dev/" : ""
 
-app.use("/*", cors());
 app.use(
   "/*",
   cors({
