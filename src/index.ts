@@ -2,12 +2,14 @@ import { serve } from "@hono/node-server";
 
 import app from "./app";
 import env from "./env";
-import { auth } from "./utils/auth";
 import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
+import { cors } from "hono/cors";
 
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
+
+const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : "https://kaohut.pages.dev/"
 
 app.use("/*", cors());
 app.use(
@@ -22,6 +24,7 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(
   "/trpc/*",
   trpcServer({
