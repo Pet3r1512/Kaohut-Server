@@ -9,7 +9,7 @@ import { cors } from "hono/cors";
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
 
-const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : "https://kaohut.pages.dev/"
+const ORIGIN = env.NODE_ENV === "development" ? "http://localhost:5173/" : env.NODE_ENV === "production" ? "https://kaohut.pages.dev/" : ""
 
 app.use("/*", cors());
 app.use(
@@ -33,7 +33,7 @@ app.use(
 
 // Should remove this later on
 app.get("/", async (c) => {
-  return c.text("Hello Hono");
+  return c.text(env.NODE_ENV);
 });
 
 serve({
