@@ -9,6 +9,19 @@ import { appRouter } from "./routes/_app";
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
 
+app.use("/*", cors());
+app.use(
+  "/*",
+  cors({
+    // origin: "https://kaohut.pages.dev/",
+    origin: "http://localhost:5173/",
+    allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
+    allowMethods: ["POST", "GET", "OPTIONS"],
+    exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+    maxAge: 600,
+    credentials: true,
+  }),
+);
 app.use(
   "/trpc/*",
   trpcServer({
