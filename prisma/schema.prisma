@@ -2,7 +2,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
-  output = "../node_modules/.prisma/client"
+  output          = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -22,6 +22,8 @@ model User {
   sessions      Session[] @relation("UserSessions")
 
   role String
+
+  workplace String
 
   @@map("user")
 }
