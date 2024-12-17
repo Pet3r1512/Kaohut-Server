@@ -9,12 +9,13 @@ export const authRouter = router({
             password: z.string().min(8, 'Password must be at least 8 characters'),
             name: z.string(),
             role: z.string(),
+            workplace: z.string()
         }))
         .mutation(
             async ({ input }) => {
-                const { email, password, name, role } = input
+                const { email, password, name, role, workplace } = input
                 const response = await auth.api.signUpEmail({
-                    body: { email, password, name, role }
+                    body: { email, password, name, role, workplace }
                 })
                 if (!response) {
                     return { status: 400, message: "Error" }
