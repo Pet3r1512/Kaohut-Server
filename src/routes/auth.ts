@@ -38,7 +38,7 @@ export const authRouter = router({
         email,
         password,
         rememberMe = true,
-        callbackURL = "http://localhost:5173/dashboard/dashboard",
+        callbackURL = "https://kaohut.pages.dev/dashboard/dashboard",
       } = input;
       const response = await auth.api.signInEmail({
         body: { email, password, rememberMe, callbackURL },
