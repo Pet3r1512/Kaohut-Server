@@ -9,10 +9,7 @@ import { cors } from "hono/cors";
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
 
-app.use(
-  "/*",
-  cors(),
-);
+app.use("/*", cors());
 
 app.use(
   "/trpc/*",
