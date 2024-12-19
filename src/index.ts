@@ -2,26 +2,25 @@ import { serve } from "@hono/node-server";
 
 import app from "./app";
 import env from "./env";
-import { trpcServer } from "@hono/trpc-server";
-import { appRouter } from "./routes/_app";
 import { cors } from "hono/cors";
+import { auth, CLIENT_URL } from "./utils/auth";
 
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
 
-app.use("/*", cors());
-
 app.use(
-  "/trpc/*",
-  trpcServer({
-    router: appRouter,
+  "/api/auth/**",
+  cors({
+    origin: CLIENT_URL,
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["POST", "GET", "OPTIONS"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
+    credentials: true,
   })
 );
 
-// Should remove this later on
-app.get("/", async (c) => {
-  return c.text("Hello Hono");
-});
+app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
 serve({
   fetch: app.fetch,
