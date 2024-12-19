@@ -32,8 +32,9 @@ export const auth = betterAuth({
   trustedOrigins: [CLIENT_URL],
   advanced: {
     crossSubDomainCookies: {
-        enabled: true,
-        domain: "https://kaohut.pages.dev"
-    }
-}
+      enabled: true,
+      domain: "https://kaohut.pages.dev",
+    },
+    useSecureCookies: true,
+  },
 });
