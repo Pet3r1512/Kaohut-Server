@@ -6,6 +6,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
 import { cors } from "hono/cors";
 import { auth } from "./utils/auth";
+import { auth, CLIENT_URL } from "./utils/auth";
 
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
@@ -14,6 +15,7 @@ app.use(
   "/api/auth/**", // or replace with "*" to enable cors for all routes
   cors({
     origin: "http://localhost:5173", // replace with your origin
+    origin: CLIENT_URL,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["POST", "GET", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
