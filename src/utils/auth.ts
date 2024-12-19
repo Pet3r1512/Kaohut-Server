@@ -36,5 +36,8 @@ export const auth = betterAuth({
       domain: "https://kaohut.pages.dev",
     },
     useSecureCookies: true,
+    cookies: {
+      session_token: {},
+    },
   },
 });
