@@ -36,8 +36,7 @@ const httpServer = serve({
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST"],
+    origin: CLIENT_URL
   },
 });
 
