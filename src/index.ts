@@ -36,8 +36,9 @@ const httpServer = serve({
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: CLIENT_URL,
     methods: ["GET", "POST"],
+    credentials: true
   },
 });
 
@@ -51,9 +52,11 @@ io.on("connection", (socket) => {
   socket.on("game_started", (data) => {
     console.log("Game started with data:", data);
   });
+
   // Host creates a game
   socket.on("create_game", ({ hostname }, callback) => {
-    const gameCode = (Math.random() * 999999).toString()
+    const gameCode = (Date.now() % 1000000).toString().padStart(6, '0');
+
     games[gameCode] = {
       hostname,
       players: [],
