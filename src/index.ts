@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
 
   // Host creates a game
   socket.on("create_game", ({ hostname }, callback) => {
-    const gameCode = (Math.random() * 999999).toString()
+    const gameCode = (Date.now() % 1000000).toString().padStart(6, '0');
     games[gameCode] = {
       hostname,
       players: [],
