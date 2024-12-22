@@ -7,6 +7,12 @@ import { auth, CLIENT_URL } from "./utils/auth";
 
 const port = env.PORT;
 console.log(`Server is running on port http://localhost:${port}`);
+interface Game {
+  hostname: string;
+  players: { id: string; name: string; score: number }[];
+}
+
+const games: Record<string, Game> = {};
 
 app.use(
   "/api/auth/**",
