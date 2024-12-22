@@ -37,8 +37,6 @@ const httpServer = serve({
 const io = new Server(httpServer, {
   cors: {
     origin: CLIENT_URL,
-    methods: ["GET", "POST"],
-    credentials: true
   },
 });
 
