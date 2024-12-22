@@ -44,6 +44,13 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
+  socket.on("player_joined", (players) => {
+    console.log("Player joined:", players);
+  });
+
+  socket.on("game_started", (data) => {
+    console.log("Game started with data:", data);
+  });
   // Host creates a game
   socket.on("create_game", ({ hostname }, callback) => {
     const gameCode = (Math.random() * 999999).toString()
