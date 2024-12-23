@@ -5,6 +5,8 @@ import env from "./env";
 import { cors } from "hono/cors";
 import { auth, CLIENT_URL } from "./utils/auth";
 import { Server } from "socket.io";
+import { trpcServer } from "@hono/trpc-server";
+import { appRouter } from "./routes/_app";
 
 const port = env.PORT;
 
@@ -27,6 +29,14 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+
+app.use(
+  "/trpc/*",
+  cors(),
+  trpcServer({
+    router: appRouter,
+  })
+);
 
 const httpServer = serve({
   fetch: app.fetch,
