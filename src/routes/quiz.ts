@@ -46,6 +46,13 @@ const quizRouter = router({
                 },
             });
         }),
+    getAllQuizzes: publicProcedure.query(async () => {
+        const quizzes = await prisma.quiz.findMany()
+
+        return {
+            quizzes: quizzes
+        }
+    })
 });
 
 export default quizRouter
