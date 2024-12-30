@@ -25,7 +25,7 @@ const quizRouter = router({
         .mutation(async ({ input }) => {
             const { title, description, creator, questions } = input;
 
-            const newQuiz = await prisma.quiz.create({
+            await prisma.quiz.create({
                 data: {
                     title,
                     description,
@@ -45,7 +45,6 @@ const quizRouter = router({
                     },
                 },
             });
-
         }),
 });
 
