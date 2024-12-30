@@ -1,4 +1,3 @@
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
@@ -20,6 +19,8 @@ model User {
   updatedAt     DateTime
   accounts      Account[] @relation("UserAccounts")
   sessions      Session[] @relation("UserSessions")
+
+  quizzes Quiz[]
 
   role String
 
@@ -70,4 +71,35 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Quiz {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  creator     User       @relation(fields: [creatorId], references: [id])
+  creatorId   String
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id           String   @id @default(cuid())
+  questionText String
+  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  quizId       String
+  answers      Answer[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  answerText String
+  isCorrect  Boolean
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
