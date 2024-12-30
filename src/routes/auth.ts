@@ -54,30 +54,6 @@ export const authRouter = router({
         redirectTo: callbackURL || null,
       };
     }),
-  getSession: publicProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { userId } = input;
-      const session = await prisma.session.findFirst({
-        where: {
-          userId: userId,
-        },
-      });
-
-      if (!session) {
-        return { message: "Error", status: 400 };
-      }
-
-      return {
-        message: "Session existed",
-        status: 200,
-        session: session,
-      };
-    }),
   signOut: publicProcedure
     .input(z.object({ token: z.string() }))
     .mutation(async ({ input }) => {

@@ -20,7 +20,7 @@ export const auth = betterAuth({
       workplace: {
         type: "string",
         required: true,
-      },
+      }
     },
   },
   database: prismaAdapter(prisma, {
