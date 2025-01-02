@@ -12,6 +12,7 @@
     "test": "cross-env NODE_ENV=test vitest",
     "build": "pnpm install --prod=false && tsc && tsc-alias",
     "heroku-postbuild": "pnpm run build",
+    "prod:build": "pnpm prisma generate && pnpm build",
     "db:push": "pnpm prisma db push"
   },
   "dependencies": {
