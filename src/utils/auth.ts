@@ -11,6 +11,7 @@ export const CLIENT_URL =
     : "https://kaohut.pages.dev";
 
 export const auth = betterAuth({
+  basePath: "/api/auth",
   user: {
     additionalFields: {
       role: {
