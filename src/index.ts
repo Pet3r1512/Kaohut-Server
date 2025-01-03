@@ -30,7 +30,13 @@ app.use(
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
-app.get("/api/auth/get-session", async (c) => {
+app.get("/api/auth/get-session", cors({
+  origin: CLIENT_URL,
+  allowHeaders: ["Content-Type", "Authorization"],
+  exposeHeaders: ["Content-Length"],
+  maxAge: 600,
+  credentials: true,
+}), async (c) => {
   const session = c.get("session")
   const user = c.get("user")
 
