@@ -30,7 +30,7 @@ app.use(
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
-app.get("/session", async (c) => {
+app.get("/api/auth/get-session", async (c) => {
   const session = c.get("session")
   const user = c.get("user")
 
