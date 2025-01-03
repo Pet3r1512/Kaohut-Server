@@ -10,7 +10,13 @@ export const CLIENT_URL =
     ? "http://localhost:5173"
     : "https://kaohut.pages.dev";
 
+export const SERVER_URL =
+  env.NODE_ENV === "development"
+    ? "http://localhost:9999"
+    : "https://blonde-michell-pet3r-22028f0a.koyeb.app";
+
 export const auth = betterAuth({
+  baseURL: SERVER_URL,
   basePath: "/api/auth",
   user: {
     additionalFields: {
