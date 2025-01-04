@@ -37,6 +37,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true
+    }
+  },
   trustedOrigins: [CLIENT_URL],
   plugins: [
     jwt()
