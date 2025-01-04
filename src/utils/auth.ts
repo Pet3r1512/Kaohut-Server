@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "@prisma/client";
-import { jwt } from "better-auth/plugins"
 import env from "@/env";
 
 const prisma = new PrismaClient();
@@ -37,14 +36,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  advanced: {
-    crossSubDomainCookies: {
-      enabled: true,
-      domain: "https://kaohut.pages.dev"
-    }
-  },
   trustedOrigins: [CLIENT_URL],
-  plugins: [
-    jwt()
-  ]
 });
