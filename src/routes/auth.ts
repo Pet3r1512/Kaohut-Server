@@ -68,6 +68,46 @@ export const authRouter = router({
         status: 200,
       };
     }),
+  getSession: publicProcedure.input(z.object({
+    email: z.string()
+  }))
+    .mutation(async ({ input }) => {
+      const { email } = input;
+
+      // Fetch the userId by email
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!user) {
+        throw new Error("User not found for the given email");
+      }
+
+      // Fetch the session data using the userId
+      const session = await prisma.session.findFirst({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          token: true,
+          expiresAt: true,
+        },
+      });
+
+      if (!session) {
+        throw new Error("Session not found for the given user");
+      }
+
+      return {
+        token: session.token,
+        expiresAt: session.expiresAt,
+      };
+    })
 });
 
 export default authRouter;
