@@ -41,7 +41,7 @@ app.use(
 const httpServer = serve({
   fetch: app.fetch,
   port,
-  hostname: env.NODE_ENV === "development" ? "127.0.0.1" : "https://blonde-michell-pet3r-22028f0a.koyeb.app",
+  hostname: env.NODE_ENV === "development" ? "127.0.0.1" : "blonde-michell-pet3r-22028f0a.koyeb.app",
 });
 
 const io = new Server(httpServer, {
