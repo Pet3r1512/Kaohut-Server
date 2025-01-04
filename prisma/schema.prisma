@@ -1,3 +1,4 @@
+
 generator client {
   provider        = "prisma-client-js"
   output          = "../node_modules/.prisma/client"
@@ -99,4 +100,13 @@ model Answer {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Jwks {
+  id         String   @id
+  publicKey  String
+  privateKey String
+  createdAt  DateTime
+
+  @@map("jwks")
 }

@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "@prisma/client";
+import { jwt } from "better-auth/plugins"
 import env from "@/env";
 
 const prisma = new PrismaClient();
@@ -37,4 +38,7 @@ export const auth = betterAuth({
     enabled: true,
   },
   trustedOrigins: [CLIENT_URL],
+  plugins: [
+    jwt()
+  ]
 });
