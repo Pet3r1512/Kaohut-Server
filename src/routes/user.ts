@@ -5,13 +5,13 @@ import prisma from "@/prisma";
 export const userRouter = router({
     getUser: publicProcedure
         .input(z.object({
-            userId: z.string()
+            email: z.string()
         }))
         .mutation(async ({ input }) => {
-            const { userId } = input
+            const { email } = input
             const user = await prisma.user.findUnique({
                 where: {
-                    id: userId
+                    email: email
                 }
             })
 
