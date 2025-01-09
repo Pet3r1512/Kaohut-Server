@@ -7,6 +7,8 @@ import { auth, CLIENT_URL } from "./utils/auth";
 import { Server } from "socket.io";
 import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
+import { Answer } from "@prisma/client";
+import prisma from "./prisma";
 
 const port = env.PORT;
 
@@ -16,6 +18,25 @@ interface Game {
 }
 
 const games: Record<string, Game> = {};
+
+interface SinglePlayerSession {
+  userId: string; // Reference to the user playing the quiz
+  quizId: string; // Reference to the quiz being played
+  currentQuestionIndex: number; // Tracks the player's progress
+  score: number; // Tracks the player's current score
+  totalQuestions: number; // Total number of questions in the quiz
+  questions: QuestionWithAnswers[]; // List of questions with answers
+}
+
+interface QuestionWithAnswers {
+  id: string; // Question ID
+  questionText: string; // Text of the question
+  answers: Answer[]; // Array of possible answers
+}
+
+
+const singlePlayerSessions: Record<string, SinglePlayerSession> = {};
+
 
 app.use(
   "/api/auth/**",
@@ -52,7 +73,92 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  console.log(`[Socket.IO] User connected: ${socket.id}`);
+
+  socket.on("start_single_player", async ({ quizId, currentUserId }, callback) => {
+    if (!quizId || !currentUserId) {
+      callback({ error: "Invalid quiz or user ID" });
+      return;
+    }
+
+    try {
+      const quiz = await prisma.quiz.findUnique({
+        where: { id: quizId },
+        include: {
+          questions: {
+            include: {
+              answers: true,
+            },
+          },
+        },
+      });
+
+      if (!quiz || quiz.questions.length === 0) {
+        callback({ error: "Quiz not found or has no questions" });
+        return;
+      }
+
+      singlePlayerSessions[socket.id] = {
+        userId: currentUserId,
+        quizId: quiz.id,
+        currentQuestionIndex: 0,
+        score: 0,
+        totalQuestions: quiz.questions.length,
+        questions: quiz.questions,
+      };
+
+      callback({
+        success: true,
+        question: quiz.questions[0],
+      });
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+      callback({ error: "Failed to start quiz session" });
+    }
+  });
+
+  socket.on("answer_question", ({ answerIndex }, callback) => {
+    const session = singlePlayerSessions[socket.id];
+    if (!session) {
+      callback({ error: "No active session" });
+      return;
+    }
+
+    const currentQuestion = session.questions[session.currentQuestionIndex];
+    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
+
+    if (isCorrect) {
+      session.score += 1;
+    }
+
+    session.currentQuestionIndex += 1;
+
+    if (session.currentQuestionIndex < session.questions.length) {
+      const nextQuestion = session.questions[session.currentQuestionIndex];
+      callback({
+        correct: isCorrect,
+        nextQuestion,
+      });
+    } else {
+      callback({
+        correct: isCorrect,
+        finalScore: session.score,
+        totalQuestions: session.questions.length,
+      });
+
+      // Clean up the session
+      delete singlePlayerSessions[socket.id];
+      console.log(`[SinglePlayer] Session ended for socket ${socket.id}`);
+    }
+  });
+
+
+  socket.on("disconnect", () => {
+    if (singlePlayerSessions[socket.id]) {
+      delete singlePlayerSessions[socket.id];
+      console.log(`[SinglePlayer] Session data cleared for socket ${socket.id}`);
+    }
+  });
 
   // Host creates a game
   socket.on("create_game", ({ hostname }, callback) => {
