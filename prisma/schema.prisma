@@ -75,6 +75,11 @@ model Quiz {
   title       String
   description String
   creatorId   String
+  creatorName String     @default("")
+  isPublic    Boolean    @default(true)
+  length      Int        @default(1)
+  time        Int        @default(20)
+  mode        String     @default("single")
   category    String     @default("")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
