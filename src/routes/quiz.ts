@@ -8,7 +8,11 @@ const quizRouter = router({
             z.object({
                 title: z.string(),
                 description: z.string(),
-                creator: z.string(),
+                creatorId: z.string(),
+                isPublic: z.boolean().optional().default(true),
+                time: z.number().optional().default(20),
+                mode: z.string().optional().default("single"),
+                category: z.string().optional().default(""),
                 questions: z.array(
                     z.object({
                         questionText: z.string(),
@@ -23,15 +27,28 @@ const quizRouter = router({
             })
         )
         .mutation(async ({ input }) => {
-            const { title, description, creator, questions } = input;
+            const { title, description, creatorId, questions, isPublic, time, mode, category } = input;
+
+            const user = await prisma.user.findUnique({
+                where: { id: creatorId },
+                select: { name: true },
+            });
+
+            if (!user) {
+                throw new Error("Creator not found");
+            }
 
             await prisma.quiz.create({
                 data: {
                     title,
                     description,
-                    creator: {
-                        connect: { id: creator },
-                    },
+                    creatorId: creatorId,
+                    creatorName: user.name,
+                    isPublic,
+                    length: questions.length,
+                    time,
+                    mode,
+                    category,
                     questions: {
                         create: questions.map((question) => ({
                             questionText: question.questionText,
@@ -46,6 +63,7 @@ const quizRouter = router({
                 },
             });
         }),
+
     getAllQuizzes: publicProcedure.query(async () => {
         const quizzes = await prisma.quiz.findMany()
 
@@ -64,7 +82,27 @@ const quizRouter = router({
         return {
             quiz: quiz
         }
-    })
+    }),
+    getTotalQuestions: publicProcedure
+        .input(z.object({ quizId: z.string() }))
+        .mutation(async ({ input }) => {
+            const { quizId } = input;
+
+            const totalQuestions = await prisma.quiz.findUnique({
+                where: { id: quizId },
+                select: {
+                    questions: {
+                        select: { id: true },
+                    },
+                },
+            });
+
+            if (!totalQuestions) {
+                throw new Error("Quiz not found");
+            }
+
+            return totalQuestions.questions.length;
+        }),
 });
 
 export default quizRouter
