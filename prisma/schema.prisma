@@ -1,5 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
+  // output          = "../node_modules/.prisma/client"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -18,10 +19,11 @@ model User {
   updatedAt     DateTime
   role          String
   workplace     String
-  quizzes       Quiz[]    @relation("QuizCreator")
+  quizzes       Quiz[]
   accounts      Account[] @relation("UserAccounts")
   sessions      Session[] @relation("UserSessions")
   histories     History[] @relation("UserHistories")
+  History       History[]
 
   @@map("user")
 }
@@ -84,10 +86,9 @@ model Quiz {
   mode        String     @default("single")
   time        Int        @default(20)
   questions   Question[]
-  creator     User       @relation("QuizCreator", fields: [creatorId], references: [id]) // Relation to User
-  histories   History[]  @relation("QuizHistories") // Relation to quiz histories
+  creator     User       @relation(fields: [creatorId], references: [id])
 
-  @@map("quiz")
+  History History[]
 }
 
 model Question {
@@ -117,8 +118,8 @@ model History {
   quizName String
   score    Int
   playedAt DateTime @default(now())
-  user     User     @relation("UserHistories", fields: [userId], references: [id])
-  quiz     Quiz     @relation("QuizHistories", fields: [quizId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  quiz     Quiz     @relation(fields: [quizId], references: [id])
 
-  @@map("history")
+  User User[] @relation("UserHistories")
 }
