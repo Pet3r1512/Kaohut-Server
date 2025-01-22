@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  output          = "../node_modules/.prisma/client"
+  // output          = "../node_modules/.prisma/client"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -22,6 +22,8 @@ model User {
   quizzes       Quiz[]
   accounts      Account[] @relation("UserAccounts")
   sessions      Session[] @relation("UserSessions")
+  histories     History[] @relation("UserHistories")
+  History       History[]
 
   @@map("user")
 }
@@ -75,16 +77,18 @@ model Quiz {
   title       String
   description String
   creatorId   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  category    String     @default("")
   creatorName String     @default("")
   isPublic    Boolean    @default(true)
   length      Int        @default(1)
-  time        Int        @default(20)
   mode        String     @default("single")
-  category    String     @default("")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  time        Int        @default(20)
   questions   Question[]
   creator     User       @relation(fields: [creatorId], references: [id])
+
+  History History[]
 }
 
 model Question {
@@ -105,4 +109,17 @@ model Answer {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   question   Question @relation(fields: [questionId], references: [id])
+}
+
+model History {
+  id       String   @id @default(cuid())
+  userId   String
+  quizId   String
+  quizName String
+  score    Int
+  playedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  quiz     Quiz     @relation(fields: [quizId], references: [id])
+
+  User User[] @relation("UserHistories")
 }
