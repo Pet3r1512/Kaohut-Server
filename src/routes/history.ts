@@ -33,6 +33,28 @@ const historyRouter = router({
                 message: "New history added",
                 history: newHistory
             }
+        }),
+    getHistory: publicProcedure.input(z.object({
+        userId: z.string()
+    }))
+        .mutation(async ({ input }) => {
+            const { userId } = input
+
+            const histories = await prisma.history.findMany({
+                where: {
+                    userId: userId
+                }
+            })
+
+            if (!histories) {
+                throw new Error("Cannot get history")
+            }
+
+            return {
+                status: 200,
+                message: "All histories found",
+                histories: histories
+            }
         })
 })
 
