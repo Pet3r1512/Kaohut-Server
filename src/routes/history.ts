@@ -43,6 +43,7 @@ const historyRouter = router({
             const histories = await prisma.history.findMany({
                 where: {
                     userId: userId
+                take: 10,
                 }
             })
 
