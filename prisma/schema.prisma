@@ -112,14 +112,15 @@ model Answer {
 }
 
 model History {
-  id       String   @id @default(cuid())
-  userId   String
-  quizId   String
-  quizName String
-  score    Int
-  playedAt DateTime @default(now())
-  user     User     @relation(fields: [userId], references: [id])
-  quiz     Quiz     @relation(fields: [quizId], references: [id])
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
+  quizName    String
+  score       Int
+  performance String   @default("")
+  playedAt    DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
 
   User User[] @relation("UserHistories")
 }
