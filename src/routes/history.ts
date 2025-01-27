@@ -10,10 +10,11 @@ const historyRouter = router({
                 quizId: z.string(),
                 quizName: z.string(),
                 score: z.number(),
+                performance: z.string()
             })
         )
         .mutation(async ({ input }) => {
-            const { userId, quizId, quizName, score } = input
+            const { userId, quizId, quizName, score, performance } = input
 
             const newHistory = await prisma.history.create({
                 data: {
@@ -21,6 +22,7 @@ const historyRouter = router({
                     quizId,
                     quizName,
                     score,
+                    performance
                 }
             })
 
