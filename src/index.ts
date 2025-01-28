@@ -18,12 +18,18 @@ interface Game {
 const games: Record<string, Game> = {};
 
 interface SinglePlayerSession {
+  userId: string;
+  quizId: string;
+  currentQuestionIndex: number;
+  score: number;
+  totalQuestions: number;
+  questions: QuestionWithAnswers[];
 }
 
 interface QuestionWithAnswers {
-  id: string; // Question ID
-  questionText: string; // Text of the question
-  answers: Answer[]; // Array of possible answers
+  id: string;
+  questionText: string;
+  answers: Answer[];
 }
 
 
@@ -76,13 +82,7 @@ io.on("connection", (socket) => {
     try {
       const quiz = await prisma.quiz.findUnique({
         where: { id: quizId },
-        include: {
-          questions: {
-            include: {
-              answers: true,
-            },
-          },
-        },
+        include: { questions: { include: { answers: true } } },
       });
 
       if (!quiz || quiz.questions.length === 0) {
@@ -117,8 +117,12 @@ io.on("connection", (socket) => {
     }
 
     const currentQuestion = session.questions[session.currentQuestionIndex];
-    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
+    if (!currentQuestion) {
+      callback({ error: "Invalid question index" });
+      return;
+    }
 
+    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
     if (isCorrect) {
       session.score += 1;
     }
@@ -127,10 +131,7 @@ io.on("connection", (socket) => {
 
     if (session.currentQuestionIndex < session.questions.length) {
       const nextQuestion = session.questions[session.currentQuestionIndex];
-      callback({
-        correct: isCorrect,
-        nextQuestion,
-      });
+      callback({ correct: isCorrect, nextQuestion });
     } else {
       callback({
         correct: isCorrect,
