@@ -32,6 +32,19 @@ interface QuestionWithAnswers {
   answers: Answer[];
 }
 
+interface Game {
+  hostname: string;
+  quizId: string;
+  players: Player[];
+}
+
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+}
+
+
 
 const singlePlayerSessions: Record<string, SinglePlayerSession> = {};
 
