@@ -10,8 +10,6 @@ import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
 
-const port = env.PORT;
-
 interface Game {
   hostname: string;
   players: { id: string; name: string; score: number }[];
@@ -20,12 +18,6 @@ interface Game {
 const games: Record<string, Game> = {};
 
 interface SinglePlayerSession {
-  userId: string; // Reference to the user playing the quiz
-  quizId: string; // Reference to the quiz being played
-  currentQuestionIndex: number; // Tracks the player's progress
-  score: number; // Tracks the player's current score
-  totalQuestions: number; // Total number of questions in the quiz
-  questions: QuestionWithAnswers[]; // List of questions with answers
 }
 
 interface QuestionWithAnswers {
@@ -145,13 +137,10 @@ io.on("connection", (socket) => {
         finalScore: session.score,
         totalQuestions: session.questions.length,
       });
-
-      // Clean up the session
       delete singlePlayerSessions[socket.id];
       console.log(`[SinglePlayer] Session ended for socket ${socket.id}`);
     }
   });
-
 
   socket.on("disconnect", () => {
     if (singlePlayerSessions[socket.id]) {
