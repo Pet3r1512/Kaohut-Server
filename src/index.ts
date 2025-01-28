@@ -10,8 +10,6 @@ import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
 
-const port = env.PORT;
-
 interface Game {
   hostname: string;
   players: { id: string; name: string; score: number }[];
@@ -20,18 +18,18 @@ interface Game {
 const games: Record<string, Game> = {};
 
 interface SinglePlayerSession {
-  userId: string; // Reference to the user playing the quiz
-  quizId: string; // Reference to the quiz being played
-  currentQuestionIndex: number; // Tracks the player's progress
-  score: number; // Tracks the player's current score
-  totalQuestions: number; // Total number of questions in the quiz
-  questions: QuestionWithAnswers[]; // List of questions with answers
+  userId: string;
+  quizId: string;
+  currentQuestionIndex: number;
+  score: number;
+  totalQuestions: number;
+  questions: QuestionWithAnswers[];
 }
 
 interface QuestionWithAnswers {
-  id: string; // Question ID
-  questionText: string; // Text of the question
-  answers: Answer[]; // Array of possible answers
+  id: string;
+  questionText: string;
+  answers: Answer[];
 }
 
 
@@ -84,13 +82,7 @@ io.on("connection", (socket) => {
     try {
       const quiz = await prisma.quiz.findUnique({
         where: { id: quizId },
-        include: {
-          questions: {
-            include: {
-              answers: true,
-            },
-          },
-        },
+        include: { questions: { include: { answers: true } } },
       });
 
       if (!quiz || quiz.questions.length === 0) {
@@ -125,8 +117,12 @@ io.on("connection", (socket) => {
     }
 
     const currentQuestion = session.questions[session.currentQuestionIndex];
-    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
+    if (!currentQuestion) {
+      callback({ error: "Invalid question index" });
+      return;
+    }
 
+    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
     if (isCorrect) {
       session.score += 1;
     }
@@ -135,23 +131,17 @@ io.on("connection", (socket) => {
 
     if (session.currentQuestionIndex < session.questions.length) {
       const nextQuestion = session.questions[session.currentQuestionIndex];
-      callback({
-        correct: isCorrect,
-        nextQuestion,
-      });
+      callback({ correct: isCorrect, nextQuestion });
     } else {
       callback({
         correct: isCorrect,
         finalScore: session.score,
         totalQuestions: session.questions.length,
       });
-
-      // Clean up the session
       delete singlePlayerSessions[socket.id];
       console.log(`[SinglePlayer] Session ended for socket ${socket.id}`);
     }
   });
-
 
   socket.on("disconnect", () => {
     if (singlePlayerSessions[socket.id]) {
