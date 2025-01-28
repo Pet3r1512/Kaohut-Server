@@ -32,6 +32,19 @@ interface QuestionWithAnswers {
   answers: Answer[];
 }
 
+interface Game {
+  hostname: string;
+  quizId: string;
+  players: Player[];
+}
+
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+}
+
+
 
 const singlePlayerSessions: Record<string, SinglePlayerSession> = {};
 
@@ -150,20 +163,40 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Host creates a game
-  socket.on("create_game", ({ hostname }, callback) => {
-    const gameCode = (Date.now() % 1000000).toString().padStart(6, '0');
-    games[gameCode] = {
-      hostname,
-      players: [],
-    };
+  // Multiplayer Game Code with Quiz Selection Before Hosting
 
-    console.log(`Game created by ${hostname} with code: ${gameCode}`);
+  // Host selects a quiz and creates a game
+  socket.on("select_quiz_and_create_game", ({ quizId, hostname }, callback) => {
+    // Check if the quiz exists
+    prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: { questions: { include: { answers: true } } },
+    }).then((quiz) => {
+      if (!quiz || quiz.questions.length === 0) {
+        callback({ error: "Selected quiz has no questions" });
+        return;
+      }
 
-    callback({ gameCode });
+      // Create the game with the selected quizId
+      const gameCode = (Date.now() % 1000000).toString().padStart(6, '0');
+      games[gameCode] = {
+        hostname,
+        quizId,  // Store the selected quizId in the game object
+        players: [],
+      };
+
+      console.log(`Game created by ${hostname} with quiz ${quizId} and game code: ${gameCode}`);
+
+      callback({ success: true, gameCode, quiz });
+
+    }).catch((error) => {
+      console.error("Error fetching quiz:", error);
+      callback({ error: "Failed to fetch quiz" });
+    });
   });
 
-  // Player joins a game
+
+  // Player joins a multiplayer game with the provided game code
   socket.on("join_game", ({ gameCode, playerName }, callback) => {
     const game = games[gameCode];
     if (!game) {
@@ -182,7 +215,7 @@ io.on("connection", (socket) => {
     callback({ success: true });
   });
 
-  // Host starts the game
+  // Host starts the game with the selected quiz
   socket.on("start_game", ({ gameCode }, callback) => {
     const game = games[gameCode];
     if (!game) {
@@ -190,23 +223,111 @@ io.on("connection", (socket) => {
       return;
     }
 
-    console.log(`Game started for game code: ${gameCode}`);
-    io.to(gameCode).emit("game_started", { gameCode });
+    if (game.players.length < 2) {
+      callback({ error: "Not enough players to start the game" });
+      return;
+    }
 
-    callback({ success: true });
+    // Get the quiz for the game
+    prisma.quiz.findUnique({
+      where: { id: game.quizId },
+      include: { questions: { include: { answers: true } } },
+    }).then((quiz) => {
+      if (!quiz || quiz.questions.length === 0) {
+        callback({ error: "Quiz has no questions" });
+        return;
+      }
+
+      // Set the initial state for each player
+      game.players.forEach(player => {
+        singlePlayerSessions[player.id] = {
+          userId: player.id,
+          quizId: quiz.id,
+          currentQuestionIndex: 0,
+          score: 0,
+          totalQuestions: quiz.questions.length,
+          questions: quiz.questions,
+        };
+      });
+
+      // Broadcast to all players to start the game
+      io.to(gameCode).emit("game_started", { gameCode, firstQuestion: quiz.questions[0] });
+      callback({ success: true, firstQuestion: quiz.questions[0] });
+    }).catch((error) => {
+      console.error("Error fetching quiz:", error);
+      callback({ error: "Failed to fetch quiz for the game" });
+    });
   });
 
-  // Handle player disconnection
+  // Player answers a question in multiplayer mode
+  socket.on("answer_question", ({ gameCode, answerIndex }, callback) => {
+    const game = games[gameCode];
+    if (!game) {
+      callback({ error: "Game not found" });
+      return;
+    }
+
+    const playerSession = singlePlayerSessions[socket.id];
+    if (!playerSession) {
+      callback({ error: "Player not in session" });
+      return;
+    }
+
+    const currentQuestion = playerSession.questions[playerSession.currentQuestionIndex];
+    if (!currentQuestion) {
+      callback({ error: "Invalid question index" });
+      return;
+    }
+
+    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
+    if (isCorrect) {
+      playerSession.score += 1;
+    }
+
+    playerSession.currentQuestionIndex += 1;
+
+    if (playerSession.currentQuestionIndex < playerSession.questions.length) {
+      const nextQuestion = playerSession.questions[playerSession.currentQuestionIndex];
+      callback({ correct: isCorrect, nextQuestion });
+      io.to(gameCode).emit("player_answered", { playerId: socket.id, score: playerSession.score, currentQuestion: nextQuestion });
+    } else {
+      // End game for this player and broadcast to others
+      callback({
+        correct: isCorrect,
+        finalScore: playerSession.score,
+        totalQuestions: playerSession.questions.length,
+      });
+      io.to(gameCode).emit("player_finished", { playerId: socket.id, finalScore: playerSession.score });
+
+      // Check if all players have finished
+      if (game.players.every(player => singlePlayerSessions[player.id].currentQuestionIndex >= playerSession.questions.length)) {
+        // End the game and broadcast final scores
+        const finalScores = game.players.map(player => ({
+          name: player.name,
+          score: singlePlayerSessions[player.id].score,
+        }));
+        io.to(gameCode).emit("game_ended", { finalScores });
+        // Clean up sessions after the game ends
+        game.players.forEach(player => delete singlePlayerSessions[player.id]);
+        delete games[gameCode];
+      }
+    }
+  });
+
+  // Handle player disconnection in multiplayer game
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
 
     for (const [gameCode, game] of Object.entries(games)) {
+      // Remove player from game if they disconnect
       game.players = game.players.filter((player) => player.id !== socket.id);
       io.to(gameCode).emit("player_left", game.players);
 
-      if (game.players.length === 0 && game.hostname === socket.id) {
+      // If host disconnects, delete the game
+      if (game.hostname === socket.id) {
         delete games[gameCode];
-        console.log(`Game ${gameCode} deleted`);
+        io.to(gameCode).emit("game_ended", { message: "Game ended due to host disconnection." });
+        console.log(`Game ${gameCode} deleted due to host disconnection`);
       }
     }
   });
