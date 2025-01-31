@@ -10,6 +10,8 @@ import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
 
+import cron from "node-cron"
+
 interface Game {
   hostname: string;
   players: { id: string; name: string; score: number }[];
@@ -44,10 +46,7 @@ interface Player {
   score: number;
 }
 
-
-
 const singlePlayerSessions: Record<string, SinglePlayerSession> = {};
-
 
 app.use(
   "/api/auth/**",
@@ -59,6 +58,26 @@ app.use(
     credentials: true,
   })
 );
+
+cron.schedule('0 23 * * *', async () => {
+  console.log('[CRON] Running session cleanup at 11 PM...');
+
+  const now = new Date();
+  const expiredSessions = await prisma.session.findMany({
+    where: { expiresAt: { lt: now } }
+  });
+
+  console.log(`[CRON] Found ${expiredSessions.length} expired sessions.`);
+
+  if (expiredSessions.length > 0) {
+    await prisma.session.deleteMany({
+      where: { expiresAt: { lt: now } }
+    });
+    console.log('[CRON] Expired sessions deleted.');
+  } else {
+    console.log('[CRON] No expired sessions found.');
+  }
+});
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
