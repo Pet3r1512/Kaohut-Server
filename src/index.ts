@@ -87,7 +87,6 @@ app.use(
 const httpServer = serve({
   fetch: app.fetch,
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 9999,
-  hostname: env.NODE_ENV === "development" ? "127.0.0.1" : "",
 });
 
 
