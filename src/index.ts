@@ -98,6 +98,7 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
   console.log(`[Socket.IO] User connected: ${socket.id}`);
+  socket.emit("socket_id", socket.id)
 
   socket.on("start_single_player", async ({ quizId, currentUserId }, callback) => {
     if (!quizId || !currentUserId) {
@@ -180,51 +181,45 @@ io.on("connection", (socket) => {
 
   // Host selects a quiz and creates a game
   socket.on("select_quiz_and_create_game", ({ quizId, hostname }, callback) => {
-    // Check if the quiz exists
+    const gameCode = (Date.now() % 1e6).toString().padStart(6, "0");
+    games[gameCode] = {
+      hostname,
+      quizId,
+      players: [{ id: socket.id, name: hostname, score: 0 }],
+    };
+    socket.join(gameCode);
+
     prisma.quiz.findUnique({
       where: { id: quizId },
       include: { questions: { include: { answers: true } } },
-    }).then((quiz) => {
+    }).then((quiz) => {  // quiz is defined here
       if (!quiz || quiz.questions.length === 0) {
         callback({ error: "Selected quiz has no questions" });
         return;
       }
-
-      // Create the game with the selected quizId
-      const gameCode = (Date.now() % 1000000).toString().padStart(6, '0');
-      games[gameCode] = {
-        hostname,
-        quizId,  // Store the selected quizId in the game object
-        players: [],
-      };
-
-      console.log(`Game created by ${hostname} with quiz ${quizId} and game code: ${gameCode}`);
-
       callback({ success: true, gameCode, quiz });
-
+      io.in(gameCode).emit("player_joined", games[gameCode].players);
     }).catch((error) => {
       console.error("Error fetching quiz:", error);
-      callback({ error: "Failed to fetch quiz" });
+      callback({ error: "Failed to fetch quiz" }); // Handle the error case
     });
   });
 
-
-  // Player joins a multiplayer game with the provided game code
   socket.on("join_game", ({ gameCode, playerName }, callback) => {
     const game = games[gameCode];
     if (!game) {
+      console.log("Game not found:", gameCode);
       callback({ error: "Game not found" });
       return;
     }
 
     const player = { id: socket.id, name: playerName, score: 0 };
     game.players.push(player);
+    socket.join(gameCode);
 
     console.log(`${playerName} joined game: ${gameCode}`);
 
-    socket.join(gameCode);
-    io.to(gameCode).emit("player_joined", game.players);
-
+    io.in(gameCode).emit("player_joined", game.players); // Emit to all players
     callback({ success: true });
   });
 
