@@ -12,11 +12,6 @@ import prisma from "./prisma";
 
 import cron from "node-cron"
 
-interface Game {
-  hostname: string;
-  players: { id: string; name: string; score: number }[];
-}
-
 const games: Record<string, Game> = {};
 
 interface SinglePlayerSession {
