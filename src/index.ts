@@ -201,7 +201,7 @@ io.on("connection", (socket) => {
       io.in(gameCode).emit("player_joined", games[gameCode].players);
     }).catch((error) => {
       console.error("Error fetching quiz:", error);
-      callback({ error: "Failed to fetch quiz" }); // Handle the error case
+      callback({ error: "Failed to fetch quiz" });
     });
   });
 
@@ -219,7 +219,7 @@ io.on("connection", (socket) => {
 
     console.log(`${playerName} joined game: ${gameCode}`);
 
-    io.in(gameCode).emit("player_joined", game.players); // Emit to all players
+    io.in(gameCode).emit("player_joined", game.players);
     callback({ success: true });
   });
 
