@@ -9,9 +9,9 @@
   "pnpm": "10.2.0"
 },
 "scripts": {
-  "heroku-prebuild": "corepack enable && corepack prepare pnpm@10.2.0 --activate",
+  "heroku-prebuild": "corepack enable && corepack prepare pnpm@latest --activate",
   "heroku-postbuild": "pnpm run build",
-  "build": "pnpm install --prod=false && tsc && tsc-alias",
+  "build": "pnpm install --frozen-lockfile && tsc && tsc-alias",
   "prod:build": "pnpm prisma generate && pnpm build",
   "dev": "tsx watch src/index.ts",
   "start": "node ./dist/src/index.js",
