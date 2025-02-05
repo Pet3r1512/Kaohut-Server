@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "packageManager": "pnpm@10.2.0",
+  "engines": {
+    "node": "22.11.0"
+  },
 "scripts": {
   "heroku-prebuild": "npm install -g pnpm@latest && pnpm -v",
   "heroku-postbuild": "pnpm run build",
