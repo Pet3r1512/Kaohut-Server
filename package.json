@@ -9,7 +9,7 @@
   "pnpm": "10.2.0"
 },
 "scripts": {
-  "heroku-prebuild": "corepack enable && corepack prepare pnpm@latest --activate",
+  "heroku-prebuild": "npm install -g pnpm@latest && pnpm -v",
   "heroku-postbuild": "pnpm run build",
   "build": "pnpm install --frozen-lockfile && tsc && tsc-alias",
   "prod:build": "pnpm prisma generate && pnpm build",
