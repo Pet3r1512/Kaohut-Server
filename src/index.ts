@@ -1,7 +1,6 @@
 import { serve } from "@hono/node-server";
 
 import app from "./app";
-import env from "./env";
 import { cors } from "hono/cors";
 import { auth, CLIENT_URL } from "./utils/auth";
 import { Server } from "socket.io";
@@ -9,8 +8,6 @@ import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
-
-import cron from "node-cron"
 
 const games: Record<string, Game> = {};
 
@@ -53,26 +50,6 @@ app.use(
     credentials: true,
   })
 );
-
-cron.schedule('0 23 * * *', async () => {
-  console.log('[CRON] Running session cleanup at 11 PM...');
-
-  const now = new Date();
-  const expiredSessions = await prisma.session.findMany({
-    where: { expiresAt: { lt: now } }
-  });
-
-  console.log(`[CRON] Found ${expiredSessions.length} expired sessions.`);
-
-  if (expiredSessions.length > 0) {
-    await prisma.session.deleteMany({
-      where: { expiresAt: { lt: now } }
-    });
-    console.log('[CRON] Expired sessions deleted.');
-  } else {
-    console.log('[CRON] No expired sessions found.');
-  }
-});
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
