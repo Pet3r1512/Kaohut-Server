@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "license": "MIT",
-  "packageManager": "pnpm@10.2.0",
+  "packageManager": "pnpm@10.2.0+sha256.72f1630812107c8723eb5be4517725f3e13f09cfd8f71571cf29f23ce318bdb7",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node ./dist/src/index.js",
