@@ -8,6 +8,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
+import cron from "node-cron"
 
 const games: Record<string, Game> = {};
 
@@ -60,6 +61,23 @@ app.use(
     router: appRouter,
   })
 );
+
+cron.schedule('0 23 * * *', async () => {
+  console.log('[CRON] Running session cleanup at 11 PM...');
+  const now = new Date();
+  const expiredSessions = await prisma.session.findMany({
+    where: { expiresAt: { lt: now } }
+  });
+  console.log(`[CRON] Found ${expiredSessions.length} expired sessions.`);
+  if (expiredSessions.length > 0) {
+    await prisma.session.deleteMany({
+      where: { expiresAt: { lt: now } }
+    });
+    console.log('[CRON] Expired sessions deleted.');
+  } else {
+    console.log('[CRON] No expired sessions found.');
+  }
+});
 
 const httpServer = serve({
   fetch: app.fetch,
