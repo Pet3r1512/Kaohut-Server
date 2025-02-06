@@ -8,19 +8,19 @@
     "node": "20.10.0",
     "pnpm": "10.2.0"
   },
-"scripts": {
-  "heroku-prebuild": "npm install -g pnpm@latest && pnpm -v",
-  "heroku-postbuild": "pnpm run build",
-  "build": "pnpm install --frozen-lockfile && tsc && tsc-alias",
-  "prod:build": "pnpm prisma generate && pnpm build",
-  "dev": "tsx watch src/index.ts",
-  "start": "node ./dist/src/index.js",
-  "typecheck": "tsc --noEmit",
-  "lint": "eslint .",
-  "lint:fix": "pnpm run lint --fix",
-  "test": "cross-env NODE_ENV=test vitest",
-  "db:push": "pnpm prisma db push"
-},
+  "scripts": {
+    "heroku-prebuild": "npm install -g pnpm@latest && pnpm -v",
+    "heroku-postbuild": "pnpm run build",
+    "build": "pnpm install --frozen-lockfile && tsc && tsc-alias",
+    "prod:build": "pnpm prisma generate && pnpm build",
+    "dev": "tsx watch src/index.ts",
+    "start": "node ./dist/src/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix",
+    "test": "cross-env NODE_ENV=test vitest",
+    "db:push": "pnpm prisma db push"
+  },
   "dependencies": {
     "@hono/node-server": "^1.13.2",
     "@hono/trpc-server": "^0.3.4",
@@ -34,6 +34,7 @@
     "dotenv-expand": "^11.0.6",
     "hono": "^4.6.6",
     "hono-pino": "^0.4.0",
+    "node-cron": "^3.0.3",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
     "socket.io": "^4.8.1",
