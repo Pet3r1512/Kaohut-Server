@@ -1,5 +1,4 @@
 import { serve } from "@hono/node-server";
-
 import app from "./app";
 import { cors } from "hono/cors";
 import { auth, CLIENT_URL } from "./utils/auth";
@@ -8,7 +7,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./routes/_app";
 import { Answer } from "@prisma/client";
 import prisma from "./prisma";
-import cron from "node-cron"
+import cron from "node-cron";
 
 const games: Record<string, Game> = {};
 
@@ -31,6 +30,7 @@ interface Game {
   hostname: string;
   quizId: string;
   players: Player[];
+  duration: number
 }
 
 interface Player {
@@ -84,7 +84,6 @@ const httpServer = serve({
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 9999,
 });
 
-
 const io = new Server(httpServer, {
   cors: {
     origin: CLIENT_URL
@@ -93,7 +92,7 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
   console.log(`[Socket.IO] User connected: ${socket.id}`);
-  socket.emit("socket_id", socket.id)
+  socket.emit("socket_id", socket.id);
 
   socket.on("start_single_player", async ({ quizId, currentUserId }, callback) => {
     if (!quizId || !currentUserId) {
@@ -181,18 +180,20 @@ io.on("connection", (socket) => {
       hostname,
       quizId,
       players: [{ id: socket.id, name: hostname, score: 0 }],
+      duration: 0
     };
     socket.join(gameCode);
 
     prisma.quiz.findUnique({
       where: { id: quizId },
       include: { questions: { include: { answers: true } } },
-    }).then((quiz) => {  // quiz is defined here
+    }).then((quiz) => {
       if (!quiz || quiz.questions.length === 0) {
         callback({ error: "Selected quiz has no questions" });
         return;
       }
       callback({ success: true, gameCode, quiz });
+      games[gameCode].duration = quiz.time
       io.in(gameCode).emit("player_joined", games[gameCode].players);
     }).catch((error) => {
       console.error("Error fetching quiz:", error);
@@ -215,7 +216,7 @@ io.on("connection", (socket) => {
     console.log(`${playerName} joined game: ${gameCode}`);
 
     io.in(gameCode).emit("player_joined", game.players);
-    callback({ success: true });
+    callback({ success: true, quizId: game.quizId });
   });
 
   // Host starts the game with the selected quiz
@@ -263,7 +264,7 @@ io.on("connection", (socket) => {
   });
 
   // Player answers a question in multiplayer mode
-  socket.on("answer_question", ({ gameCode, answerIndex }, callback) => {
+  socket.on("answer_question_multiplayer", ({ gameCode, answerIndex }, callback) => {
     const game = games[gameCode];
     if (!game) {
       callback({ error: "Game not found" });
@@ -287,34 +288,25 @@ io.on("connection", (socket) => {
       playerSession.score += 1;
     }
 
-    playerSession.currentQuestionIndex += 1;
+    // Broadcast the answer result
+    io.to(gameCode).emit("player_answered", {
+      playerId: socket.id,
+      score: playerSession.score,
+      isCorrect
+    });
 
-    if (playerSession.currentQuestionIndex < playerSession.questions.length) {
+    callback({ correct: isCorrect });
+
+    setTimeout(() => {
+      playerSession.currentQuestionIndex += 1;
       const nextQuestion = playerSession.questions[playerSession.currentQuestionIndex];
-      callback({ correct: isCorrect, nextQuestion });
-      io.to(gameCode).emit("player_answered", { playerId: socket.id, score: playerSession.score, currentQuestion: nextQuestion });
-    } else {
-      // End game for this player and broadcast to others
-      callback({
-        correct: isCorrect,
-        finalScore: playerSession.score,
-        totalQuestions: playerSession.questions.length,
-      });
-      io.to(gameCode).emit("player_finished", { playerId: socket.id, finalScore: playerSession.score });
 
-      // Check if all players have finished
-      if (game.players.every(player => singlePlayerSessions[player.id].currentQuestionIndex >= playerSession.questions.length)) {
-        // End the game and broadcast final scores
-        const finalScores = game.players.map(player => ({
-          name: player.name,
-          score: singlePlayerSessions[player.id].score,
-        }));
-        io.to(gameCode).emit("game_ended", { finalScores });
-        // Clean up sessions after the game ends
-        game.players.forEach(player => delete singlePlayerSessions[player.id]);
-        delete games[gameCode];
+      if (nextQuestion) {
+        io.to(gameCode).emit("next_question", { nextQuestion });
+      } else {
+        io.to(gameCode).emit("game_over", { message: "Game finished!" });
       }
-    }
+    }, game.duration * 1000); // Use `duration` property in seconds
   });
 
   // Handle player disconnection in multiplayer game
