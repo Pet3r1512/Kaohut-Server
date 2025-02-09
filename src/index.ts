@@ -143,7 +143,11 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const isCorrect = currentQuestion.answers[answerIndex]?.isCorrect || false;
+    let isCorrect = false
+    if (answerIndex) {
+      isCorrect = currentQuestion.answers[answerIndex]?.isCorrect
+    }
+
     if (isCorrect) {
       session.score += 1;
     }
@@ -220,7 +224,7 @@ io.on("connection", (socket) => {
   });
 
   // Host starts the game with the selected quiz
-  socket.on("start_game", ({ gameCode }, callback) => {
+  socket.on('start_game', ({ gameCode }, callback) => {
     const game = games[gameCode];
     if (!game) {
       callback({ error: "Game not found" });
@@ -242,7 +246,6 @@ io.on("connection", (socket) => {
         return;
       }
 
-      // Set the initial state for each player
       game.players.forEach(player => {
         singlePlayerSessions[player.id] = {
           userId: player.id,
@@ -254,8 +257,8 @@ io.on("connection", (socket) => {
         };
       });
 
-      // Broadcast to all players to start the game
-      io.to(gameCode).emit("game_started", { gameCode, firstQuestion: quiz.questions[0] });
+      // Emit the first question to all players
+      io.to(gameCode).emit('game_started', { gameCode, firstQuestion: quiz.questions[0] });
       callback({ success: true, firstQuestion: quiz.questions[0] });
     }).catch((error) => {
       console.error("Error fetching quiz:", error);
@@ -328,4 +331,4 @@ io.on("connection", (socket) => {
   });
 });
 
-console.log("Socket.IO server initialized");
+console.log("Socket.IO server initialized")
