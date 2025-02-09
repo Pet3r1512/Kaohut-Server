@@ -307,7 +307,7 @@ io.on("connection", (socket) => {
       if (nextQuestion) {
         io.to(gameCode).emit("next_question", { nextQuestion });
       } else {
-        io.to(gameCode).emit("game_over", { message: "Game finished!" });
+        io.to(gameCode).emit("game_over", { players: game.players });
       }
     }, game.duration * 1000); // Use `duration` property in seconds
   });
