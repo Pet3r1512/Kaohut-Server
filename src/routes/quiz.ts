@@ -71,6 +71,18 @@ const quizRouter = router({
             quizzes: quizzes
         }
     }),
+    getFirst10Quizzes: publicProcedure.query(async () => {
+        const quizzes = await prisma.quiz.findMany({
+            take: 5,
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return {
+            quizzes: quizzes,
+        };
+    }),
     getQuiz: publicProcedure.input(z.object({ quizId: z.string() })).mutation(async ({ input }) => {
         const { quizId } = input
         const quiz = await prisma.quiz.findUnique({
